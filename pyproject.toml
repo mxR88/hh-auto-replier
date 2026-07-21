@@ -5,6 +5,7 @@ description = "Auto-replier for HeadHunter vacancies"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "beautifulsoup4>=4.15.0",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.2",
 ]

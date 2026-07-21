@@ -1,7 +1,22 @@
+from pathlib import Path
+
 from config import Config
 from hh.client import HHClient
 from hh.matcher import exclude_vacancy, load_resume_skills, match_vacancy
 from hh.models import Vacancy
+
+SEEN_FILE = Path(__file__).resolve().parent.parent / "seen_vacancies.txt"
+
+
+def load_seen() -> set[int]:
+    if not SEEN_FILE.exists():
+        return set()
+    return {int(line.strip()) for line in SEEN_FILE.read_text().splitlines() if line.strip()}
+
+
+def mark_seen(vacancy_id: int) -> None:
+    with open(SEEN_FILE, "a") as f:
+        f.write(f"{vacancy_id}\n")
 
 
 def run() -> None:
@@ -23,6 +38,10 @@ def run() -> None:
     print(f"  exclude:    {cfg.exclude_words}")
     print()
 
+    seen = load_seen()
+    print(f"Already seen: {len(seen)} vacancies")
+    print()
+
     exclude = cfg.exclude_words
     allowed_areas = set(cfg.search_area)
     matched: list[tuple[int, Vacancy]] = []
@@ -34,6 +53,8 @@ def run() -> None:
             break
         for raw in items:
             v = Vacancy.from_api(raw)
+            if v.id in seen:
+                continue
             area_id = (raw.get("area") or {}).get("id")
             if area_id is not None:
                 try:
