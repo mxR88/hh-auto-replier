@@ -24,7 +24,7 @@ class Config:
 
     search_text: str = "Linux"
     search_area: list[int] = field(default_factory=lambda: [1])
-    exclude_words: list[str] = field(default_factory=lambda: ["Windows", "Microsoft", "1C"])
+    exclude_words: list[str] = field(default_factory=lambda: ["Windows", "Microsoft", "1C", "ad"])
     search_per_page: int = 50
     search_schedule: str = ""
 

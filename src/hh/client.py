@@ -35,6 +35,7 @@ class HHClient:
             "text": text or self.cfg.search_text,
             "per_page": self.cfg.search_per_page,
             "page": page,
+            "search_field": ["name", "company_name", "description"],
         }
         if self.cfg.search_area:
             params["area"] = ",".join(str(a) for a in self.cfg.search_area)
