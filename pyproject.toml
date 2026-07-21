@@ -1,0 +1,16 @@
+[project]
+name = "hh-auto-replier"
+version = "0.1.0"
+description = "Auto-replier for HeadHunter vacancies"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.2",
+]
+
+[project.scripts]
+hh-auto-replier = "main:run"
+
+[tool.uv]
+package = false

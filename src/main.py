@@ -1,0 +1,47 @@
+from config import Config
+from hh.client import HHClient
+from hh.matcher import exclude_vacancy, load_resume_skills, match_vacancy
+from hh.models import Vacancy
+
+
+def run() -> None:
+    cfg = Config()
+    client = HHClient(cfg)
+
+    print(f"Loading resume skills...")
+    resume_skills = load_resume_skills(cfg.resume_path)
+    print(f"Found {len(resume_skills)} skills in resume")
+
+    exclude = cfg.exclude_words
+    matched: list[tuple[int, Vacancy]] = []
+
+    for page in range(5):
+        data = client.search_vacancies(page=page)
+        items = data.get("items", [])
+        if not items:
+            break
+        for raw in items:
+            v = Vacancy.from_api(raw)
+            combined = " ".join(filter(None, [v.name, v.requirement_raw, v.responsibility_raw, *v.key_skills]))
+            if exclude_vacancy(combined, exclude):
+                continue
+            score = match_vacancy(combined, resume_skills)
+            matched.append((score, v))
+
+    matched.sort(key=lambda x: x[0], reverse=True)
+
+    print(f"\n{'='*70}")
+    print(f"Matched {len(matched)} relevant vacancies (sorted by relevance):")
+    print(f"{'='*70}\n")
+
+    for score, v in matched[:20]:
+        print(f"[{score:2d}] {v.name}")
+        print(f"     {v.employer_name} | {v.area} | {v.schedule}")
+        sal = f"{v.salary_from or '?'}-{v.salary_to or '?'} {v.salary_currency or ''}"
+        print(f"     {sal} | {v.experience} | {v.employment}")
+        print(f"     {v.alternate_url}")
+        print()
+
+
+if __name__ == "__main__":
+    run()
