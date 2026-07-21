@@ -24,6 +24,7 @@ def run() -> None:
     print()
 
     exclude = cfg.exclude_words
+    allowed_areas = set(cfg.search_area)
     matched: list[tuple[int, Vacancy]] = []
 
     for page in range(5):
@@ -33,6 +34,13 @@ def run() -> None:
             break
         for raw in items:
             v = Vacancy.from_api(raw)
+            area_id = (raw.get("area") or {}).get("id")
+            if area_id is not None:
+                try:
+                    if int(area_id) not in allowed_areas:
+                        continue
+                except ValueError:
+                    pass
             combined = " ".join(filter(None, [v.name, v.requirement_raw, v.responsibility_raw, *v.key_skills]))
             if exclude_vacancy(combined, exclude):
                 continue
