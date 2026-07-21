@@ -30,13 +30,16 @@ def get_vacancy_details(cfg: Config, vacancy_id: str) -> dict:
 def build_cover_letter(vacancy: dict, resume_skills: set[str]) -> str:
     name = vacancy.get("name", "вакансия")
     employer = (vacancy.get("employer") or {}).get("name", "")
-    requirements = (vacancy.get("snippet") or {}).get("requirement", "")
-    responsibilities = (vacancy.get("snippet") or {}).get("responsibility", "")
+    snippet = vacancy.get("snippet") or {}
+    requirements = snippet.get("requirement", "") or ""
+    responsibilities = snippet.get("responsibility", "") or ""
+    description = vacancy.get("description", "") or ""
+    key_skills = [s["name"] for s in (vacancy.get("key_skills") or [])]
+
+    context = f"{name} {requirements} {responsibilities} {description} {' '.join(key_skills)}"
 
     relevant_skills = [
-        s
-        for s in resume_skills
-        if s.lower() in f"{name} {requirements} {responsibilities}".lower()
+        s for s in resume_skills if s.lower() in context.lower()
     ]
 
     skills_text = ", ".join(relevant_skills[:6]) if relevant_skills else "Linux, Python, Docker, CI/CD, Ansible, автоматизация"

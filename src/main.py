@@ -46,3 +46,21 @@ def run() -> None:
                 continue
             score = match_vacancy(combined, resume_skills)
             matched.append((score, v))
+
+    matched.sort(key=lambda x: x[0], reverse=True)
+
+    print(f"\n{'='*70}")
+    print(f"Matched {len(matched)} relevant vacancies (sorted by relevance):")
+    print(f"{'='*70}\n")
+
+    for score, v in matched[:20]:
+        print(f"[{score:2d}] {v.name}")
+        print(f"     {v.employer_name} | {v.area} | {v.schedule}")
+        sal = f"{v.salary_from or '?'}-{v.salary_to or '?'} {v.salary_currency or ''}"
+        print(f"     {sal} | {v.experience} | {v.employment}")
+        print(f"     {v.alternate_url}")
+        print()
+
+
+if __name__ == "__main__":
+    run()
