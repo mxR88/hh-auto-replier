@@ -62,6 +62,12 @@ def run() -> None:
                         continue
                 except ValueError:
                     pass
+            if cfg.salary_from:
+                max_sal = v.salary_to if v.salary_to is not None else v.salary_from
+                if max_sal is not None and max_sal < cfg.salary_from:
+                    continue
+                if v.salary_from is None and v.salary_to is None:
+                    continue
             combined = " ".join(filter(None, [v.name, v.requirement_raw, v.responsibility_raw, *v.key_skills]))
             if exclude_vacancy(combined, exclude):
                 continue

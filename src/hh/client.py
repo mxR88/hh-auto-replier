@@ -32,11 +32,13 @@ class HHClient:
 
     def search_vacancies(self, text: str = "", page: int = 0) -> dict:
         params: dict = {
-            "text": text or self.cfg.search_text,
             "per_page": self.cfg.search_per_page,
             "page": page,
-            "search_field": ["name", "company_name", "description"],
         }
+        search_text = text or self.cfg.search_text
+        if search_text:
+            params["text"] = search_text
+            params["search_field"] = ["name", "company_name", "description"]
         if self.cfg.search_area:
             params["area"] = ",".join(str(a) for a in self.cfg.search_area)
         if self.cfg.search_schedule:
