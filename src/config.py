@@ -14,16 +14,21 @@ class Config:
     client_id: str = os.getenv("HH_CLIENT_ID", "")
     client_secret: str = os.getenv("HH_CLIENT_SECRET", "")
     redirect_uri: str = os.getenv("HH_REDIRECT_URI", "")
-    access_token: str = os.getenv("HH_ACCESS_TOKEN", "")
+    app_token: str = os.getenv("HH_APP_TOKEN", "")
+    user_token: str = os.getenv("HH_USER_TOKEN", "")
     refresh_token: str = os.getenv("HH_REFRESH_TOKEN", "")
 
-    search_text: str = "Linux DevOps SRE инженер"
-    search_area: list[int] = field(default_factory=lambda: [1, 113])
+    @property
+    def access_token(self) -> str:
+        return self.app_token
+
+    search_text: str = "Linux"
+    search_area: list[int] = field(default_factory=lambda: [1])
     exclude_words: list[str] = field(default_factory=lambda: ["Windows", "Microsoft", "1C"])
     search_per_page: int = 50
-    search_schedule: str = "remote"
+    search_schedule: str = ""
 
-    salary_from: int = 150_000
+    salary_from: int = 0
 
     hh_api_base: str = "https://api.hh.ru"
     hh_user_agent: str = "HH-Rust-Bot/1.0 (https://t.me/rust_hh_jobs_bot)"

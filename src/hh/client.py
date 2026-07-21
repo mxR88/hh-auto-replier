@@ -8,7 +8,7 @@ from config import Config
 class HHClient:
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
-        token = cfg.access_token or self._get_app_token()
+        token = cfg.app_token or self._get_app_token()
         self._client = httpx.Client(
             base_url=cfg.hh_api_base,
             headers={
@@ -33,13 +33,15 @@ class HHClient:
     def search_vacancies(self, text: str = "", page: int = 0) -> dict:
         params: dict = {
             "text": text or self.cfg.search_text,
-            "area": self.cfg.search_area[0],
-            "schedule": self.cfg.search_schedule,
-            "salary_from": self.cfg.salary_from,
             "per_page": self.cfg.search_per_page,
             "page": page,
-            "only_with_salary": True,
         }
+        if self.cfg.search_area:
+            params["area"] = ",".join(str(a) for a in self.cfg.search_area)
+        if self.cfg.search_schedule:
+            params["schedule"] = self.cfg.search_schedule
+        if self.cfg.salary_from:
+            params["salary_from"] = self.cfg.salary_from
         resp = self._client.get("/vacancies", params=params)
         resp.raise_for_status()
         return resp.json()

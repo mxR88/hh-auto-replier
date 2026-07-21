@@ -20,7 +20,7 @@ def extract_vacancy_id(url: str) -> str:
 def get_vacancy_details(cfg: Config, vacancy_id: str) -> dict:
     headers = {
         "User-Agent": cfg.hh_user_agent,
-        "Authorization": f"Bearer {cfg.access_token}",
+        "Authorization": f"Bearer {cfg.app_token}",
     }
     resp = httpx.get(f"{cfg.hh_api_base}/vacancies/{vacancy_id}", headers=headers)
     resp.raise_for_status()
