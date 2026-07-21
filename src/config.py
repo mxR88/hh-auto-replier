@@ -34,6 +34,8 @@ class Config:
     hh_user_agent: str = "HH-Rust-Bot/1.0 (https://t.me/rust_hh_jobs_bot)"
 
     resume_path: str = str(Path(__file__).resolve().parent.parent / "resume.html")
+    resume_id: str = "4e8c8ee5ff10b35db40039ed1f6d5634587052"
+    browser_state_path: str = str(Path(__file__).resolve().parent.parent / ".auth" / "hh_state.json")
 
     def __post_init__(self) -> None:
         if not self.client_id or not self.client_secret:

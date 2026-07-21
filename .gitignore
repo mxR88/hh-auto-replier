@@ -2,3 +2,4 @@ resume.html
 __pycache__/
 **/__pycache__/
 seen_vacancies.txt
+.auth/
