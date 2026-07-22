@@ -22,6 +22,7 @@ STATE_DIR = Path(__file__).resolve().parent.parent / ".auth"
 STATE_FILE = STATE_DIR / "hh_state.json"
 OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent
 OUTPUT_FILE = OUTPUT_DIR / "all_vacancies.json"
+SEEN_FILE = OUTPUT_DIR / "seen_vacancies.txt"
 
 
 class BrowserParser:
@@ -46,7 +47,15 @@ class BrowserParser:
             base_url = (
                 f"https://hh.ru/search/vacancy"
                 f"?resume={resume_id}"
-                f"&items_per_page={self.items_per_page}"
+                f"&area=1"
+                f"&search_field=name&search_field=company_name&search_field=description"
+                f"&enable_snippets=true"
+                f"&hhtmSource=vacancy_search_list"
+                f"&hhtmSourceLabel=vacancy_search_list"
+                f"&hhtmFrom=vacancy_search_list"
+                f"&hhtmFromLabel=drawer_filter"
+                f"&L_save_area=true"
+                f"&excluded_text=windows%2C+microsoft"
             )
             page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(3000)
@@ -125,16 +134,31 @@ class BrowserParser:
         print(f"Saved {len(vacancies)} vacancies to {self.output_file}", file=sys.stderr)
 
 
+def load_seen() -> set[str]:
+    if not SEEN_FILE.exists():
+        return set()
+    return {line.strip() for line in SEEN_FILE.read_text().splitlines() if line.strip()}
+
+
 def main(resume_id: str) -> None:
     parser = BrowserParser()
     t0 = time.time()
     vacancies = parser.search_by_resume(resume_id)
     elapsed = time.time() - t0
-    print(f"\nScraped {len(vacancies)} unique vacancies in {elapsed:.0f}s", file=sys.stderr)
+
+    seen_ids = load_seen()
+    new_vacancies = [v for v in vacancies if v.hh_id not in seen_ids]
+
+    print(f"\nScraped {len(vacancies)} unique in {elapsed:.0f}s, "
+          f"{len(new_vacancies)} new, {len(vacancies) - len(new_vacancies)} already seen",
+          file=sys.stderr)
     parser.save_to_json(vacancies)
 
-    # Print summary
-    for v in vacancies:
+    if not new_vacancies:
+        print("No new vacancies to show.", file=sys.stderr)
+        return
+
+    for v in new_vacancies:
         print(f"[{v.hh_id}] {v.title} — {v.company}")
         print(f"    {v.url}")
         print()
