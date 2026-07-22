@@ -3,3 +3,4 @@ __pycache__/
 **/__pycache__/
 seen_vacancies.txt
 .auth/
+all_vacancies.json
